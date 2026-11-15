@@ -5,6 +5,5 @@ services:
     runtime: docker
     plan: free
     healthCheckPath: /healthz
-    envVars:
-      - key: ANTHROPIC_API_KEY   # optional; leave unset to use the built-in parser
-        sync: false
+    # No configuration is required. To have Claude read the invoices, add ANTHROPIC_API_KEY
+    # under Environment in the Render dashboard after the first deploy.

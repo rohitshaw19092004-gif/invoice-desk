@@ -28,7 +28,7 @@ def fmt_po(value) -> str:
     """Purchase-order money is always in the buyer's currency, whatever the invoice is in."""
     return fmt_inr(value, currency=config.BUYER["currency"])
 from ..seed import normalize_invoice_number
-from . import extract_llm, extract_rules
+from . import extract_llm, extract_rules, reader
 from .extract_rules import Extraction
 from .reader import Document, UnreadableDocument, read_pdf, render_previews
 
@@ -239,7 +239,8 @@ def read(ctx: Ctx) -> StageResult:
         if kind == "page_text":
             ctx.log(f"Page {info['page']}: text layer found, {info['words']} words read directly.")
         elif kind == "ocr_start":
-            ctx.log(f"Page {info['page']}: no text layer. The page is an image, so running OCR at 300 dpi…")
+            ctx.log(f"Page {info['page']}: no text layer. The page is an image, so running OCR at "
+                    f"{reader.OCR_DPI} dpi…")
         elif kind == "ocr_done":
             ctx.log(f"Page {info['page']}: OCR read {info['words']} words at {info['confidence']}% confidence.")
 

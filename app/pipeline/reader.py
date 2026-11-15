@@ -6,7 +6,7 @@ same structure (words -> cells -> rows) so every later stage is format-agnostic.
 """
 from __future__ import annotations
 
-import io
+import os
 import statistics
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -17,7 +17,12 @@ import pymupdf
 from .. import config
 
 MIN_TEXT_WORDS = 12  # fewer words than this on a page means "no usable text layer"
-OCR_DPI = 300
+# 300 dpi is the usual choice for OCR. A small hosted instance can lower it to trade a little
+# margin on poor scans for speed; the demo scan reads identically from 150 to 400 dpi.
+OCR_DPI = int(os.environ.get("INVOICE_DESK_OCR_DPI", "300"))
+# Tesseract's own multithreading costs more than it saves on a single page, and on a shared
+# CPU it thrashes. One thread is both faster and kinder.
+os.environ.setdefault("OMP_THREAD_LIMIT", "1")
 OCR_NOISE_FLOOR = 40.0
 
 
@@ -163,8 +168,10 @@ def _ocr_page(page: "pymupdf.Page", page_no: int) -> tuple[list[Row], Optional[f
     import pytesseract
     from PIL import Image
 
-    pix = page.get_pixmap(dpi=OCR_DPI, alpha=False)
-    img = Image.open(io.BytesIO(pix.tobytes("png")))
+    # Greyscale, straight from the rendered pixels: OCR works on grey levels anyway, and this
+    # skips encoding and decoding a full-page PNG.
+    pix = page.get_pixmap(dpi=OCR_DPI, alpha=False, colorspace=pymupdf.csGRAY)
+    img = Image.frombytes("L", (pix.width, pix.height), pix.samples)
     scale = 72.0 / OCR_DPI
     data = pytesseract.image_to_data(img, config="--psm 6", output_type=pytesseract.Output.DICT)
     lines: dict[tuple, list[Word]] = {}

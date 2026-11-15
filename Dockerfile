@@ -13,6 +13,10 @@ COPY app ./app
 COPY samples ./samples
 COPY scripts ./scripts
 
+# Small hosted instances have a fraction of a CPU: read scans at 200 dpi there. Set before the
+# check below so the build verifies the same configuration the container runs with.
+ENV INVOICE_DESK_OCR_DPI=200
+
 # Build-time smoke test: every demo invoice must reach its expected decision with this
 # image's OCR engine. If it does not, the build fails instead of the demo.
 RUN INVOICE_DESK_AI=off python scripts/run_samples.py --check
