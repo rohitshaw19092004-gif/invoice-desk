@@ -1,0 +1,11 @@
+.venv
+.git
+data
+tests
+docs
+.claude
+.pytest_cache
+__pycache__
+*.pyc
+.env
+ASA Case Study*.pdf

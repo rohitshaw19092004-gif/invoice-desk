@@ -1,0 +1,11 @@
+# Runtime
+fastapi==0.163.1
+uvicorn[standard]==0.54.0
+python-multipart==0.0.33
+pydantic==2.14.3
+python-dotenv==1.2.4
+pymupdf==1.28.2          # PDF text layer, page rendering
+pillow==13.0.0
+pytesseract==0.3.13      # OCR for scanned invoices (needs the tesseract binary)
+rapidfuzz==3.14.6        # fuzzy matching of vendor names and line descriptions
+anthropic==2.8.0         # optional: Claude reads the fields when an API key is set
