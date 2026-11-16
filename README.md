@@ -12,7 +12,7 @@ To run it yourself:
 ./run.sh
 ```
 
-Then open <http://localhost:8000>. No API key and no configuration are needed. (Scanned invoices need Tesseract: `brew install tesseract`.)
+Then open the address it prints, normally <http://localhost:8000> (it moves to the next free port if 8000 is taken). No API key and no configuration are needed. (Scanned invoices need Tesseract: `brew install tesseract`.)
 
 ---
 

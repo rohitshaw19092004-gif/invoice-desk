@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Start Invoice Desk locally:  ./run.sh   then open http://localhost:8000
+# Start Invoice Desk locally:  ./run.sh   then open the address it prints (http://localhost:8000 by default)
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -17,6 +17,37 @@ if [ ! -f samples/invoices/01_shreeji_packaging_SPI-1047.pdf ]; then
   .venv/bin/python samples/generate_samples.py
 fi
 
-PORT="${PORT:-8000}"
-echo "Invoice Desk is starting on http://localhost:${PORT}"
+# Is anything already answering on this port, on either IPv4 or IPv6? Another program bound to
+# the same port would not stop this one starting, but "localhost" could reach it instead of us.
+port_busy() {
+  .venv/bin/python - "$1" <<'PY'
+import socket, sys
+for host in ("127.0.0.1", "::1"):
+    try:
+        with socket.create_connection((host, int(sys.argv[1])), timeout=0.3):
+            sys.exit(0)
+    except OSError:
+        pass
+sys.exit(1)
+PY
+}
+
+if [ -n "${PORT:-}" ]; then
+  if port_busy "$PORT"; then
+    echo "Port ${PORT} is already in use by another program. Choose another: PORT=8001 ./run.sh"
+    exit 1
+  fi
+else
+  PORT=8000
+  while port_busy "$PORT"; do
+    echo "Port ${PORT} is already in use by another program; trying $((PORT + 1))."
+    PORT=$((PORT + 1))
+    if [ "$PORT" -gt 8020 ]; then echo "No free port between 8000 and 8020."; exit 1; fi
+  done
+fi
+
+echo
+echo "  Invoice Desk is running. Open:  http://localhost:${PORT}"
+echo "  Stop it with Ctrl+C."
+echo
 exec .venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port "${PORT}"
