@@ -4,6 +4,10 @@
 
 Built for the Zamp AI Solutions Analyst case study.
 
+**Live demo: <https://invoice-desk-fvtf.onrender.com>**. It runs on a free instance that sleeps when idle, so the first visit can take up to a minute to wake, and the scanned invoice takes about 9 seconds there (under 2 locally). Use "Reset demo data" in the sidebar for a clean start.
+
+To run it yourself:
+
 ```bash
 ./run.sh
 ```
